@@ -1,6 +1,21 @@
 import pygame
 import time
-from constants import *
+
+import constants as const
+
+
+def check_bounds(rect, bounds):
+    "Ensures that the given rect is within the bounds rect"
+    if rect.left < bounds.left:
+        rect.left = bounds.left
+    elif rect.right > bounds.right:
+        rect.right = bounds.right
+
+    if rect.top < bounds.top:
+        rect.top = bounds.top
+    elif rect.bottom > bounds.bottom:
+        rect.bottom = bounds.bottom
+    return rect
 
 
 class Player(pygame.sprite.Sprite):
@@ -9,18 +24,18 @@ class Player(pygame.sprite.Sprite):
         super().__init__()
         self.game = game
         self.side = side
-        self.color = PLAYERS[side]
+        self.color = const.PLAYER_COLORS[side]
         self.start_pos = [x, y]
         self.velocity = pygame.math.Vector2()
 
-        self.image = pygame.Surface((2 * PLAYER_RADIUS, 2 * PLAYER_RADIUS))
-        self.image.fill(GREEN)
-        self.image.set_colorkey(GREEN)
+        self.image = pygame.Surface((2 * const.PLAYER_RADIUS, 2 * const.PLAYER_RADIUS))
+        self.image.fill(const.GREEN)
+        self.image.set_colorkey(const.GREEN)
         self.rect = self.image.get_rect(center=self.start_pos)
 
-        pygame.draw.circle(self.image, BLACK, (PLAYER_RADIUS, PLAYER_RADIUS), PLAYER_RADIUS)
-        pygame.draw.circle(self.image, self.color, (PLAYER_RADIUS, PLAYER_RADIUS), PLAYER_RADIUS - 5)
-        pygame.draw.circle(self.image, BLACK, (PLAYER_RADIUS, PLAYER_RADIUS), 5)
+        pygame.draw.circle(self.image, const.BLACK, self.rect.center, const.PLAYER_RADIUS)
+        pygame.draw.circle(self.image, self.color, self.rect.center, const.PLAYER_RADIUS - 5)
+        pygame.draw.circle(self.image, const.BLACK, self.rect.center, 5)
 
     def update(self):
         if pygame.mouse.get_pressed()[0]:
@@ -31,7 +46,7 @@ class Player(pygame.sprite.Sprite):
             bounds = pygame.Rect(0, h//2 + 50, w, h//2)
             target_pos = check_bounds(target_rect, bounds).center
 
-            self.rect = self.move_to(target_pos, MAX_PLAYER_SPEED)
+            self.rect = self.move_to(target_pos, const.MAX_PLAYER_SPEED)
 
     def move_to(self, target, max_speed):
         self.velocity = pygame.math.Vector2(target[0] - self.rect.centerx, target[1] - self.rect.centery)
@@ -61,14 +76,14 @@ class AIPlayer(Player):
         ball_rect = self.game.ball.rect
         if self.bounds.collidepoint(ball_rect.center):
             # ball is in my field!
-            max_speed = self.difficulty * MAX_PLAYER_SPEED / 4
+            max_speed = self.difficulty * const.MAX_PLAYER_SPEED / 4
             if self.check_ball_collision():
                 target_rect.center = (2 * self.rect.centerx - ball_rect.centerx, 2 * self.rect.centery - ball_rect.centery)
             else:
                 target_rect.center = (ball_rect.centerx, ball_rect.centery)
         else:
             # Just move horizontally towards the ball, vertically to center
-            max_speed = self.difficulty * MAX_PLAYER_SPEED / 8
+            max_speed = self.difficulty * const.MAX_PLAYER_SPEED / 8
             target_rect.center = (ball_rect.centerx, self.bounds.centery)
         
         target_rect = check_bounds(target_rect, self.bounds)
@@ -76,7 +91,7 @@ class AIPlayer(Player):
 
     def check_ball_collision(self):
         distance = (self.rect.centerx - self.game.ball.rect.centerx) ** 2  + (self.rect.centery - self.game.ball.rect.centery) ** 2
-        return distance ** 0.5 < PLAYER_RADIUS + BALL_RADIUS - (2 * AI_DIFFICULTY)
+        return distance ** 0.5 < const.PLAYER_RADIUS + const.BALL_RADIUS #- (2 * const.AI_DIFFICULTY)
 
 
 class Ball(pygame.sprite.Sprite):
@@ -90,13 +105,13 @@ class Ball(pygame.sprite.Sprite):
         self.bounds = pygame.Rect(0, 50, *game.board_rect.size)
         self.goal = False
 
-        self.image = pygame.Surface((2 * BALL_RADIUS, 2 * BALL_RADIUS))
-        self.image.fill(GREEN)
-        self.image.set_colorkey(GREEN)
+        self.image = pygame.Surface((2 * const.BALL_RADIUS, 2 * const.BALL_RADIUS))
+        self.image.fill(const.GREEN)
+        self.image.set_colorkey(const.GREEN)
         self.rect = self.image.get_rect(center=self.start_pos)
 
-        pygame.draw.circle(self.image, BLACK, (BALL_RADIUS, BALL_RADIUS), BALL_RADIUS)
-        pygame.draw.circle(self.image, WHITE, (BALL_RADIUS, BALL_RADIUS), BALL_RADIUS - 5)
+        pygame.draw.circle(self.image, const.BLACK, self.rect.center, const.BALL_RADIUS)
+        pygame.draw.circle(self.image, const.WHITE, self.rect.center, const.BALL_RADIUS - 5)
     
     def check_collision(self, player):
         "Check collisions with players and bounce accordingly"
@@ -104,7 +119,7 @@ class Ball(pygame.sprite.Sprite):
         # Check for collisions (distance b/w centers <= sum of radii)
         collision = pygame.math.Vector2(player.rect.centerx - self.rect.centerx, player.rect.centery - self.rect.centery)
         distance = collision.length()
-        if distance > PLAYER_RADIUS + BALL_RADIUS:
+        if distance > const.PLAYER_RADIUS + const.BALL_RADIUS:
             return False
         
         # Get projections of both vectors in the direction of collision
@@ -117,7 +132,7 @@ class Ball(pygame.sprite.Sprite):
         self.velocity += (bvf - bvi) * direction
 
         # Prevent sticking
-        offset = PLAYER_RADIUS + BALL_RADIUS - distance + 2
+        offset = const.PLAYER_RADIUS + const.BALL_RADIUS - distance + 2
         self.rect.move_ip(-direction.x * offset, -direction.y * offset)
         return True
     
@@ -126,8 +141,8 @@ class Ball(pygame.sprite.Sprite):
         c2 = self.check_collision(self.game.player2)
         
         # Restrict max speed
-        if self.velocity.length() > MAX_BALL_SPEED * self.game.tick:
-            self.velocity.scale_to_length(MAX_BALL_SPEED * self.game.tick)
+        if self.velocity.length() > const.MAX_BALL_SPEED * self.game.tick:
+            self.velocity.scale_to_length(const.MAX_BALL_SPEED * self.game.tick)
 
         is_goal, self.rect = self.move(self.rect, self.velocity)
         if not is_goal:
@@ -152,8 +167,8 @@ class Ball(pygame.sprite.Sprite):
             return True
 
         if rect.top < self.bounds.top or rect.bottom > self.bounds.bottom:
-            goal_edge_size = (self.bounds.width - GOAL_WIDTH) // 2
-            if rect.left > goal_edge_size and rect.right < goal_edge_size + GOAL_WIDTH:
+            goal_edge_size = (self.bounds.width - const.GOAL_WIDTH) // 2
+            if rect.left > goal_edge_size and rect.right < goal_edge_size + const.GOAL_WIDTH:
                 self.game.score_goal()
                 return True
         return False
@@ -177,7 +192,7 @@ class BaseGame:
     def score_goal(self):
         self.goal = True
         self.time_of_goal = time.time()
-        if self.ball.rect.centery < SCREENY//2:
+        if self.ball.rect.centery < const.SCREENY//2:
             self.scores[0] += 1
         else:
             self.scores[1] += 1

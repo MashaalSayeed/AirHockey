@@ -1,3 +1,4 @@
+import argparse
 import socket
 import selectors
 import time
@@ -5,16 +6,19 @@ import time
 import pygame
 
 from sprites import Ball, BaseGame
-from constants import *
 from socketclient import SocketClient
+import constants as const
 
+
+HOST = 'localhost'
+PORT = 22222
 
 class Game(BaseGame):
     def __init__(self, server, client1, client2):
         super().__init__()
         self.server = server
         self.player1, self.player2 = client1, client2
-        self.board_rect = pygame.Rect(0, 50, SCREENX, SCREENY-50)
+        self.board_rect = pygame.Rect(0, 50, const.SCREENX, const.SCREENY-50)
         self.ball = Ball(self, *self.board_rect.center)
 
         self.player1.set_side(self, 'TOP')
@@ -41,14 +45,14 @@ class Game(BaseGame):
 
     def update(self):
         if self.goal:
-            if time.time() - self.time_of_goal >= GOAL_TEXT_DELAY:
+            if time.time() - self.time_of_goal >= const.GOAL_TEXT_DELAY:
                 self.reset()
             return
 
         self.player1.update()
         self.player2.update()
         self.ball.update()
-        self.tick = self.clock.tick(60)
+        self.tick = self.clock.tick(const.FPS)
     
     def close(self):
         self.server.games.remove(self)
@@ -68,10 +72,10 @@ class SocketPlayer(SocketClient):
     def set_side(self, game, side):
         self.game = game
         self.side = side
-        y = SCREENY//4 + 50 if side == 'TOP' else 3 * SCREENY//4
+        y = const.SCREENY//4 + 50 if side == 'TOP' else 3 * const.SCREENY//4
 
-        self.rect = pygame.Rect(0, 0, PLAYER_RADIUS, PLAYER_RADIUS)
-        self.rect.center = SCREENX//2, y
+        self.rect = pygame.Rect(0, 0, const.PLAYER_RADIUS, const.PLAYER_RADIUS)
+        self.rect.center = const.SCREENX//2, y
         self.send('PLAYER_POS', {'rect': self.resolve_side(self.rect.center)})
     
     def resolve_side(self, pos):
@@ -154,7 +158,7 @@ class SocketServer:
                         try:
                             client.process_event(mask)
                         except Exception as e:
-                            print("Client exception caught:", e)
+                            print(f"Client exception caught: {e}")
                             client.close()
                             self.clients.remove(client)
         except (KeyboardInterrupt, SystemExit):
@@ -169,4 +173,7 @@ class SocketServer:
 
 if __name__ == "__main__":
     sel = selectors.DefaultSelector()
-    SocketServer(host='', port=22222).listen()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--port', type=int, default=PORT, help='Port number for listening')
+    args = parser.parse_args()
+    SocketServer(host=HOST, port=args.port).listen()

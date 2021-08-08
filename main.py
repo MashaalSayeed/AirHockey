@@ -1,17 +1,52 @@
 import time
+import socket
 import selectors
+
 import pygame
 
-from constants import *
 from sprites import Player, AIPlayer, Ball, BaseGame
 from ui import UIManager
-from client import Client, SOCKET_EVENT
+from socketclient import SocketClient
+import constants as const
+
+SOCKET_EVENT = pygame.USEREVENT + 1
+
+
+class Client(SocketClient):
+    def __init__(self, sel, host, port):
+        self.host = host
+        self.port = port
+
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        super().__init__(sel, sock, (host, port))
+
+    def connect(self):
+        self.sock.connect_ex((self.host, self.port))
+        print(f"Connected to {self.host}, port: {self.port}")
+
+    def listen(self):
+        # Must keep calling this until client closes
+        events = self.selector.select(timeout=None)
+        try:
+            for key, mask in events:
+                sock = key.data
+                sock.process_event(mask)
+        except Exception as e:
+            print("Exception caught:", e)
+            return False
+        else:
+            return True
+
+    def handle_request(self, data):
+        header, body = data['header'], data['body']
+        event = pygame.event.Event(SOCKET_EVENT, {'header': header, 'body': body})
+        pygame.event.post(event)
 
 
 class AirHockey(BaseGame):
     def __init__(self):
         super().__init__()
-        self.screen = pygame.display.set_mode((SCREENX, SCREENY))
+        self.screen = pygame.display.set_mode((const.SCREENX, const.SCREENY))
         self.ui = UIManager(self)
         self.client = None
 
@@ -80,8 +115,8 @@ class AirHockey(BaseGame):
 
     def run(self):
         self.ui.prepare()
-        self.player1 = AIPlayer(self, 0, SCREENX//2, SCREENY//4 + 50, AI_DIFFICULTY)
-        self.player2 = Player(self, 1, SCREENX//2, 3 * SCREENY//4 + 25)
+        self.player1 = AIPlayer(self, 0, const.SCREENX//2, const.SCREENY//4 + 50, const.AI_DIFFICULTY)
+        self.player2 = Player(self, 1, const.SCREENX//2, 3 * const.SCREENY//4 + 25)
         self.ball = Ball(self, *self.board_rect.center)
 
         self.players = pygame.sprite.Group(self.player1, self.player2)
@@ -117,12 +152,12 @@ class AirHockey(BaseGame):
                 elif self.state == 'PLAYING':
                     self.all_sprites.update()
 
-                    if self.goal and time.time() - self.time_of_goal >= GOAL_TEXT_DELAY:
+                    if self.goal and time.time() - self.time_of_goal >= const.GOAL_TEXT_DELAY:
                         self.reset_board()
 
                 pygame.display.flip()
                 # Seconds passed since last tick
-                self.tick = self.clock.tick(FPS)
+                self.tick = self.clock.tick(const.FPS)
         except KeyboardInterrupt:
             pass
         self.disconnect_client()

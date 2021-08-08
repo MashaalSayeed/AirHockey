@@ -18,7 +18,7 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 GREEN = (0, 255, 0)
 
-PLAYERS = [RED, BLUE]
+PLAYER_COLORS = [RED, BLUE]
 
 ABOUT_TEXT = """Air hockey is a game where
 two players play against each other
@@ -33,17 +33,3 @@ Creator - Mashaal Sayeed
 Font - OmenType
 Images - pzUH
 """
-
-
-def check_bounds(rect, bounds):
-    "Ensures that the given rect is within the bounds rect"
-    if rect.left < bounds.left:
-        rect.left = bounds.left
-    elif rect.right > bounds.right:
-        rect.right = bounds.right
-
-    if rect.top < bounds.top:
-        rect.top = bounds.top
-    elif rect.bottom > bounds.bottom:
-        rect.bottom = bounds.bottom
-    return rect
