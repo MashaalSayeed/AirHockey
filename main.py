@@ -16,7 +16,6 @@ class Client(SocketClient):
     def __init__(self, sel, host, port):
         self.host = host
         self.port = port
-
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         super().__init__(sel, sock, (host, port))
 
@@ -52,7 +51,6 @@ class AirHockey(BaseGame):
 
         self.state = 'MENU'
         self.game_over = False
-
         pygame.display.set_caption('Air Hockey Python')
     
     def score_goal(self):

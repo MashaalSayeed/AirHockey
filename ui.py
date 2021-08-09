@@ -16,7 +16,7 @@ def multiline_text(surface, font, color, text, top=0):
 class UIScreen:
     state = ''
     def __init__(
-        self, manager, size=(SCREENX, SCREENY), 
+        self, manager, size=(const.SCREENX, const.SCREENY), 
         bg='darkgreen', transparent=False
     ):
         self.manager = manager
@@ -88,7 +88,7 @@ class PlayingScreen(UIScreen):
     def draw_board(self, size):
         "Drawing the game board"
         surface = pygame.Surface(size)
-        surface.fill((0, 0xC0, 0))
+        surface.fill(const.BACKGROUND_COLOR)
         rect = surface.get_rect()
 
         pygame.draw.circle(surface, const.WHITE, rect.center, 80, 3)
@@ -96,8 +96,8 @@ class PlayingScreen(UIScreen):
 
         goal_edge_size = (rect.width - const.GOAL_WIDTH) // 2
 
-        pygame.draw.rect(surface, const.WHITE, (goal_edge_size-40, -10, goal_edge_size+80, 100), 3)
-        pygame.draw.rect(surface, const.WHITE, (goal_edge_size-40, rect.height - 90, goal_edge_size+80, 100), 3)
+        pygame.draw.rect(surface, const.WHITE, (goal_edge_size-40, -10, const.GOAL_WIDTH + 80, 100), 3)
+        pygame.draw.rect(surface, const.WHITE, (goal_edge_size-40, rect.height - 90, const.GOAL_WIDTH + 80, 100), 3)
 
         pygame.draw.line(surface, const.BLACK, (goal_edge_size, 0), (goal_edge_size + const.GOAL_WIDTH, 0), 6)
         pygame.draw.line(surface, const.BLACK, (goal_edge_size, rect.height), (goal_edge_size + const.GOAL_WIDTH, rect.height), 7)

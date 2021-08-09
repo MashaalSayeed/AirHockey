@@ -33,9 +33,10 @@ class Player(pygame.sprite.Sprite):
         self.image.set_colorkey(const.GREEN)
         self.rect = self.image.get_rect(center=self.start_pos)
 
-        pygame.draw.circle(self.image, const.BLACK, self.rect.center, const.PLAYER_RADIUS)
-        pygame.draw.circle(self.image, self.color, self.rect.center, const.PLAYER_RADIUS - 5)
-        pygame.draw.circle(self.image, const.BLACK, self.rect.center, 5)
+        center = (const.PLAYER_RADIUS, const.PLAYER_RADIUS)
+        pygame.draw.circle(self.image, const.BLACK, center, const.PLAYER_RADIUS)
+        pygame.draw.circle(self.image, self.color, center, const.PLAYER_RADIUS - 3)
+        #pygame.draw.circle(self.image, const.BLACK, center, 5)
 
     def update(self):
         if pygame.mouse.get_pressed()[0]:
@@ -110,8 +111,9 @@ class Ball(pygame.sprite.Sprite):
         self.image.set_colorkey(const.GREEN)
         self.rect = self.image.get_rect(center=self.start_pos)
 
-        pygame.draw.circle(self.image, const.BLACK, self.rect.center, const.BALL_RADIUS)
-        pygame.draw.circle(self.image, const.WHITE, self.rect.center, const.BALL_RADIUS - 5)
+        center = (const.BALL_RADIUS, const.BALL_RADIUS)
+        pygame.draw.circle(self.image, const.BLACK, center, const.BALL_RADIUS)
+        pygame.draw.circle(self.image, const.WHITE, center, const.BALL_RADIUS - 3)
     
     def check_collision(self, player):
         "Check collisions with players and bounce accordingly"
