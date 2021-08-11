@@ -10,8 +10,8 @@ from socketclient import SocketClient
 import constants as const
 
 
-HOST = 'localhost'
-PORT = 22222
+HOST = '0.0.0.0'
+PORT = const.SERVER_PORT
 
 class Game(BaseGame):
     def __init__(self, server, client1, client2):
@@ -33,8 +33,7 @@ class Game(BaseGame):
     def send_winner(self):
         if self.winner:
             for player in (self.player1, self.player2):
-                # idk why != works
-                player.send('GAME_OVER', {'winner': self.winner.side != player.side})
+                player.send('GAME_OVER', {'winner': self.winner.side == player.side})
             self.close()
     
     def reset(self):
@@ -52,7 +51,7 @@ class Game(BaseGame):
         self.player1.update()
         self.player2.update()
         self.ball.update()
-        self.tick = self.clock.tick(const.FPS)
+        self.tick = self.clock.tick(const.FPS) / 1000
     
     def close(self):
         self.server.games.remove(self)

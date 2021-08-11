@@ -195,9 +195,9 @@ class BaseGame:
         self.goal = True
         self.time_of_goal = time.time()
         if self.ball.rect.centery < const.SCREENY//2:
-            self.scores[0] += 1
-        else:
             self.scores[1] += 1
+        else:
+            self.scores[0] += 1
 
         if self.scores[0] == 7:
             self.winner = self.player1

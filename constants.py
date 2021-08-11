@@ -3,11 +3,11 @@ FPS = 60
 SCREENX, SCREENY = (360, 600)
 GOAL_WIDTH = SCREENX * 0.4
 
-AI_DIFFICULTY = 3 # Set higher for more difficulty (1-4)
+AI_DIFFICULTY = 4 # Set higher for more difficulty (1-4)
 PLAYER_RADIUS = (SCREENX * 3.25) // 51.25
 BALL_RADIUS =  PLAYER_RADIUS - 3
-MAX_PLAYER_SPEED = 0.8
-MAX_BALL_SPEED = 1.6
+MAX_PLAYER_SPEED = 800
+MAX_BALL_SPEED = 1600
 
 GOAL_TEXT_DELAY = 3
 
@@ -19,6 +19,9 @@ GREEN = (0, 255, 0)
 BACKGROUND_COLOR = (0, 0xC0, 0)
 
 PLAYER_COLORS = [RED, BLUE]
+
+SERVER_PORT = 22222
+SERVER_HOST = 'localhost'
 
 ABOUT_TEXT = """Air hockey is a game where
 two players play against each other

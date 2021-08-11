@@ -85,7 +85,7 @@ class AirHockey(BaseGame):
         if self.client:
             return
 
-        self.client = Client(sel, 'localhost', 22222)
+        self.client = Client(sel, const.SERVER_HOST, const.SERVER_PORT)
         self.client.connect()
         self.client.send('JOIN_GAME')
         self.state = 'WAITING'
@@ -155,7 +155,7 @@ class AirHockey(BaseGame):
 
                 pygame.display.flip()
                 # Seconds passed since last tick
-                self.tick = self.clock.tick(const.FPS)
+                self.tick = self.clock.tick(const.FPS) / 1000
         except KeyboardInterrupt:
             pass
         self.disconnect_client()
